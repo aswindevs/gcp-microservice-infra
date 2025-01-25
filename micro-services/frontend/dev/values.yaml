@@ -21,6 +21,10 @@ default:
 
 deployments:
   - fullnameOverride: frontend
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 3
     service:
       type: ClusterIP
       ports:
@@ -35,19 +39,23 @@ deployments:
         healthcheck:
           enabled: true
           livenessProbe:
-            path: "/_healthz"
             initialDelaySeconds: 10
             periodSeconds: 30
-            httpHeaders:
-              - name: "Cookie"
-                value: "shop_session-id=x-liveness-probe"
+            httpGet:
+              path: "/_healthz"
+              port: 8080
+              httpHeaders:
+                - name: "Cookie"
+                  value: "shop_session-id=x-liveness-probe"
           readinessProbe:
-            path: "/_healthz"
             initialDelaySeconds: 10
-            periodSeconds: 30
-            httpHeaders:
-              - name: "Cookie"
-                value: "shop_session-id=x-liveness-probe"
+            periodSeconds: 3
+            httpGet:
+              port: 8080
+              path: "/_healthz"
+              httpHeaders:
+                - name: "Cookie"
+                  value: "shop_session-id=x-liveness-probe"
         env:
           PORT: 8080
           PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"

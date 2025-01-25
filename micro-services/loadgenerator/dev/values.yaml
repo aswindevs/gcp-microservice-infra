@@ -21,6 +21,8 @@ default:
 
 deployments:
   - fullnameOverride: loadgenerator
+    autoscaling:
+      enabled: false
     service:
       type: ClusterIP
       ports:
@@ -52,17 +54,9 @@ deployments:
     containers:
       - fullnameOverride: loadgenerator
         port: 7070
-        healthcheck:
-          enabled: true
-          readinessProbe:
-            grpc:
-              port: 7070
-          livenessProbe:
-            grpc:
-              port: 7070
         env:
           PORT: 7070
-          FRONTEND_ADDR: "frontend:80"
+          FRONTEND_ADDR: "frontend:8080"
           USERS : "10"
           RATE: "1"
             

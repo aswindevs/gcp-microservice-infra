@@ -21,6 +21,10 @@ default:
 
 deployments:
   - fullnameOverride: paymentservice
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 3
     service:
       type: ClusterIP
       ports:

@@ -13,14 +13,18 @@ default:
   resources:
     requests:
       cpu: 100m
-      memory: 64Mi
+      memory: 220Mi
     limits:
       cpu: 200m
-      memory: 128Mi
+      memory: 450Mi
   replicaCount: 1
 
 deployments:
   - fullnameOverride: recommendationservice
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 3
     service:
       type: ClusterIP
       ports:
@@ -38,7 +42,7 @@ deployments:
             grpc:
               port: 8080
         env:
-          PORT: 5050
+          PORT: 8080
           PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
           CURRENCY_SERVICE_ADDR: "currencyservice:7000"
           CART_SERVICE_ADDR: "cartservice:7070"
