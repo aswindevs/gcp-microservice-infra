@@ -1,0 +1,10 @@
+namespace: dev
+
+helmGlobals:
+  chartHome: ./../../../
+
+helmCharts:
+  - name: application-helm-chart
+    releaseName: frontend
+    valuesFile: ./values.yaml
+    namespace: dev

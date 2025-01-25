@@ -1,0 +1,17 @@
+kind: Kustomization
+
+namespace: traefik
+
+resources:
+- ../base/namespace.yml
+- ../base/middleware.yaml
+
+helmCharts:
+- name: traefik
+  includeCRDs: true
+  valuesFile: ../base/values.yml
+  releaseName: traefik
+  namespace: traefik
+  version: 34.1.0
+  repo: https://helm.traefik.io/traefik
+

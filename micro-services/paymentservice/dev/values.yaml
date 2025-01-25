@@ -1,0 +1,53 @@
+projectName: verloop # required
+default:
+  annotations:
+    all:
+      app.amgo.io/env: dev
+  labels:
+    all:
+      service-name: paymentservice
+  image:
+    repository: us-central1-docker.pkg.dev/google-samples/microservices-demo/paymentservice
+    tag: v0.10.2
+    imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  replicaCount: 1
+
+deployments:
+  - fullnameOverride: paymentservice
+    service:
+      type: ClusterIP
+      ports:
+        - port: 50051
+          name: api 
+    containers:
+      - fullnameOverride: paymentservice
+        port: 50051
+        healthcheck:
+          enabled: true
+          readinessProbe:
+            grpc:
+              port: 50051
+          livenessProbe:
+            grpc:
+              port: 50051
+        env:
+          PORT: 50051
+          PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+          CURRENCY_SERVICE_ADDR: "currencyservice:7000"
+          CART_SERVICE_ADDR: "cartservice:7070"
+          CHECKOUT_SERVICE_ADDR: "recommendationservice:5050"
+          SHIPPING_SERVICE_ADDR: "shippingservice:50051"
+          RECOMMENDATION_SERVICE_ADDR: "recommendationservice:8080"
+          AD_SERVICE_ADDR: "adservice:9555"
+          EMAIL_SERVICE_ADDR: "emailservice:5000"
+          PAYMENT_SERVICE_ADDR: "paymentservice:50051"
+          SHOPPING_ASSISTANT_SERVICE_ADDR: "shoppingassistantservice:80"
+          DISABLE_PROFILER: "1"
+            

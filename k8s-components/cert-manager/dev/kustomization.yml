@@ -1,0 +1,15 @@
+namespace: cert-manager
+
+resources:
+  - ../base/clusterissuer.yaml
+
+helmCharts:
+  - name: cert-manager
+    includeCRDs: true
+    valuesFile: ../base/values.yml
+    releaseName: cert-manager
+    namespace: cert-manager
+    version: v1.16.3
+    repo: https://charts.jetstack.io
+
+ 

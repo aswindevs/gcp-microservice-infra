@@ -1,0 +1,13 @@
+namespace: redis
+
+resources:
+  - namespace.yml
+
+helmCharts:
+  - name: redis
+    includeCRDs: true
+    valuesFile: ./values.yml
+    releaseName: redis
+    namespace: redis
+    version: 19.1.2
+    repo: https://charts.bitnami.com/bitnami

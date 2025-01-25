@@ -1,0 +1,68 @@
+projectName: verloop # required
+default:
+  annotations:
+    all:
+      app.amgo.io/env: dev
+  labels:
+    all:
+      service-name: loadgenerator
+  image:
+    repository: us-central1-docker.pkg.dev/google-samples/microservices-demo/loadgenerator
+    tag: v0.10.2
+    imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 300m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  replicaCount: 1
+
+deployments:
+  - fullnameOverride: loadgenerator
+    service:
+      type: ClusterIP
+      ports:
+        - port: 7070
+          name: api 
+    initContainer: 
+      - fullnameOverride: frontend-check
+        image: busybox:latest
+        env:
+          FRONTEND_ADDR: "frontend:80"
+        command:
+        - /bin/sh
+        - -exc
+        - |
+          MAX_RETRIES=12
+          RETRY_INTERVAL=10
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Attempt $i: Pinging frontend: ${FRONTEND_ADDR}..."
+            STATUSCODE=$(wget --server-response http://${FRONTEND_ADDR} 2>&1 | awk '/^  HTTP/{print $2}')
+            if [ $STATUSCODE -eq 200 ]; then
+                echo "Frontend is reachable."
+                exit 0
+            fi
+            echo "Error: Could not reach frontend - Status code: ${STATUSCODE}"
+            sleep $RETRY_INTERVAL
+          done
+          echo "Failed to reach frontend after $MAX_RETRIES attempts."
+          exit 1
+    containers:
+      - fullnameOverride: loadgenerator
+        port: 7070
+        healthcheck:
+          enabled: true
+          readinessProbe:
+            grpc:
+              port: 7070
+          livenessProbe:
+            grpc:
+              port: 7070
+        env:
+          PORT: 7070
+          FRONTEND_ADDR: "frontend:80"
+          USERS : "10"
+          RATE: "1"
+            

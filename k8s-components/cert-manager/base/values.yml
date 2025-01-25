@@ -1,0 +1,34 @@
+installCRDs: true
+
+serviceAccount:
+  create: true
+  name: "cert-manager"
+
+
+securityContext:
+  fsGroup: 1001
+
+global:
+  leaderElection:
+    namespace: cert-manager
+
+prometheus:
+  servicemonitor:
+    enabled: false
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+webhook:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+
+cainjector:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi

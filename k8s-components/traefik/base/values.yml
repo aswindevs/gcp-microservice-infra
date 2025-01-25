@@ -1,0 +1,83 @@
+# https://github.com/traefik/traefik-helm-chart/blob/v10.21.1/traefik/values.yaml
+logs:
+  access:
+    enabled: true
+    format: json
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowExternalNameServices: true
+
+ingressRoute:
+  dashboard:
+    enabled: false
+service:
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+globalArguments:
+  - "--api.insecure=true"
+
+additionalArguments:
+  - "--providers.kubernetesingress.ingressclass=traefik"
+  - "--metrics.prometheus"
+  - "--metrics.prometheus.entrypoint=metrics"
+  - "--entryPoints.metrics.address=:8082"
+  - "--metrics.prometheus.buckets=0.01,0.025,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1,2,5"
+  - "--providers.kubernetescrd.allowCrossNamespace=true"
+
+
+deployment:
+  podAnnotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 75
+
+rollingUpdate:
+  maxUnavailable: 0
+
+podDisruptionBudget:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 100Mi
+  limits:
+    cpu: 200m
+    memory: 400Mi
+
+topologySpreadConstraints:
+  - labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: traefik
+    maxSkew: 2
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+  - labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: traefik
+    maxSkew: 2
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway

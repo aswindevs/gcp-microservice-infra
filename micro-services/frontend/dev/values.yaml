@@ -1,0 +1,64 @@
+projectName: verloop # required
+default:
+  annotations:
+    all:
+      app.amgo.io/env: dev
+  labels:
+    all:
+      service-name: frontend
+  image:
+    repository: us-central1-docker.pkg.dev/google-samples/microservices-demo/frontend
+    tag: v0.10.2
+    imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  replicaCount: 1
+
+deployments:
+  - fullnameOverride: frontend
+    service:
+      type: ClusterIP
+      ports:
+        - port: 8080
+          name: api
+          ingress:     
+            enabled: true
+            host: "poc.aswindevs.com"   ## Host name  
+    containers:
+      - fullnameOverride: frontend
+        port: 8080
+        healthcheck:
+          enabled: true
+          livenessProbe:
+            path: "/_healthz"
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-liveness-probe"
+          readinessProbe:
+            path: "/_healthz"
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-liveness-probe"
+        env:
+          PORT: 8080
+          PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+          CURRENCY_SERVICE_ADDR: "currencyservice:7000"
+          CART_SERVICE_ADDR: "cartservice:7070"
+          CHECKOUT_SERVICE_ADDR: "checkoutservice:5050"
+          SHIPPING_SERVICE_ADDR: "shippingservice:50051"
+          RECOMMENDATION_SERVICE_ADDR: "recommendationservice:8080"
+          AD_SERVICE_ADDR: "adservice:9555"
+          EMAIL_SERVICE_ADDR: "emailservice:5000"
+          PAYMENT_SERVICE_ADDR: "paymentservice:50051"
+          SHOPPING_ASSISTANT_SERVICE_ADDR: "shoppingassistantservice:80"
+          ENABLE_PROFILER: "0"
+            

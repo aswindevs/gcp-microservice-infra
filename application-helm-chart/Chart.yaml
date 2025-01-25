@@ -1,0 +1,9 @@
+apiVersion: v2
+name: application-helm-chart
+description: A generic helm chart for backend services in Kubernetes
+type: application
+version: 1.0.3
+appVersion: "1.0.0"
+maintainers:
+  - name: devopsadmin
+    email: devopsadmin@mestafi.com
